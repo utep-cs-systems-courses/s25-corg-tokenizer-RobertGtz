@@ -1,0 +1,11 @@
+CFLAGS=-g -O3
+
+all: srcs
+
+tester.o: history.h tokenizer.h
+
+srcs: tester.o
+	cc -o $@ $^ $(CFLAGS)
+
+clean:
+	rm -f *.o srcs
