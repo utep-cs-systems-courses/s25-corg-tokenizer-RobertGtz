@@ -4,20 +4,13 @@
 //return true if c is a space or and enter (' ' or '\n')
 int space_char(char c){
 
-  if (c == ' ' || c == '\n')
-    return 1; //c is a space or enter
-  else
-    return 0; 
-
+  return (c == ' ' || c == '\n' || c == '\t');
 }
 
 //return true if c is a non-space or and enter 
 int non_space_char(char c){
   
-  if (!space_char(c) || c != '\0')
-    return 1; //c is a char
-  else
-    return 0;
+  return !space_char(c) && c != '\0';
   
 }
 
@@ -28,8 +21,9 @@ int non_space_char(char c){
    str does not contain any tokens. */
 
 char *token_start(char *str){
+  if (*str == '\0' || str == NULL) return NULL;
   while (space_char(*str)){ //keep moving forward until find a char
-    if (*str == '\0') return 0; //in case char not found
+    if (*str == '\0') return NULL; //in case char not found
     str++;
   }
   
@@ -40,7 +34,7 @@ char *token_start(char *str){
 /* Returns a pointer terminator char following *token */
 
 char *token_terminator(char *token){
-  while (non_space_char(*str)) token++; //move forward until found the first space or enter
+  while (*token != '\0' && non_space_char(*token)) token++; //move forward until found the first space or enter
   return token; 
 }
 
@@ -52,7 +46,7 @@ int count_tokens(char *str){
 
   while(*str != '\0'){
     str = token_start(str);
-    if (str==0) break; //reach the end of the string, not more token found
+    if (str == NULL || *str=='\0') break; //reach the end of the string, not more token found
     count++;
     str = token_terminator(str); //end the token found, to start a new one
   }
@@ -67,14 +61,18 @@ int count_tokens(char *str){
 
 char *copy_str(char *inStr, short len){
   char *newStr = (char *) malloc(len + 1); //create a new pointer, will copy string +1 to add \0
-  char *startp = *newStr; //create a new pointer so we don't lose the start point
+  if(newStr == NULL){
+    printf("malloc fail");
+    return NULL;
+  }
+  char *startp = newStr; //create a new pointer so we don't lose the start point
   while(len > 0){ //copy string
     *newStr = *inStr;
     newStr++;
     inStr++;
     len--;
   }
-  newStr[len]='\0'; //add the terminator 
+  *newStr='\0'; //add the terminator 
   return startp;
 }
 
@@ -99,29 +97,26 @@ char *copy_str(char *inStr, short len){
 
 char **tokenize(char* str){
   
+  int numTokens = count_tokens(str);
   char **pStr = (char **) malloc((count_tokens(str) + 1) * sizeof(char *)); //create a pointer of poiter 
   char **startPStr = pStr; //create the start point of pStr
-  char *strTemp; //point to use it as temp
-  int countLen; //cout len of the word
   
   while(*str!='\0'){
     str = token_start(str); //skip any space char
-    if (str == 0) break; // there is no more tokens
-    
-    countLen = 0; //reset the word to 0 len each time
-    while (non_space_char(str)){ // count len of the word
-      countlen++;
+    if (str == 0) break; // there is no more tokens  
+    int countLen = 0; //reset the word to 0 len each time
+    while (non_space_char(*str)){ // count len of the word
+      countLen++;
       str++;
     }
     
-    strTemp = copy_str(str,countLen); // copy the word into a new pointer, temp is use here
-    *pStr = strTemp; //add to the point of pointers 
+    *pStr = copy_str(str - countLen, countLen); // copy the word into a new pointer, temp is use here
     pStr++;
 
     str = token_terminator(str); //move to the next word to be added, 
   }
   
-  *pStr = 0; //end the point of pointers with NULL
+  *pStr = '\0'; //end the point of pointers with NULL
   return startPStr; //return the point of pointers 
 }
 
@@ -133,8 +128,6 @@ void print_tokens(char **tokens){
     printf("%s\n",*tokens);
     tokens++; //move to the next token
   }
-  
-  return 0;
 }
 
 
@@ -142,9 +135,10 @@ void print_tokens(char **tokens){
 
 void free_tokens(char **token){
   if(token != 0){
-    while(*token != 0){
-      free(*token);
-      token++;
+    char **ptemp = token;
+    while(*ptemp != 0){
+      free(*ptemp);
+      ptemp++;
     }
     free(token);
   }

@@ -2,9 +2,9 @@ CFLAGS=-g -O3
 
 all: srcs
 
-tester.o: history.h tokenizer.h
+mymain.o: history.h tokenizer.h
 
-srcs: tester.o
+srcs: mymain.o tokenizer.o
 	cc -o $@ $^ $(CFLAGS)
 
 clean:
