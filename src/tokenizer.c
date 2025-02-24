@@ -21,9 +21,9 @@ int non_space_char(char c){
    str does not contain any tokens. */
 
 char *token_start(char *str){
-  if (*str == '\0' || str == NULL) return NULL;
+  if (*str == '\0') return 0;
   while (space_char(*str)){ //keep moving forward until find a char
-    if (*str == '\0') return NULL; //in case char not found
+    if (*str == '\0') return 0; //in case char not found
     str++;
   }
   
@@ -46,7 +46,7 @@ int count_tokens(char *str){
 
   while(*str != '\0'){
     str = token_start(str);
-    if (str == NULL || *str=='\0') break; //reach the end of the string, not more token found
+    if (*str=='\0') break; //reach the end of the string, not more token found
     count++;
     str = token_terminator(str); //end the token found, to start a new one
   }
@@ -61,10 +61,7 @@ int count_tokens(char *str){
 
 char *copy_str(char *inStr, short len){
   char *newStr = (char *) malloc(len + 1); //create a new pointer, will copy string +1 to add \0
-  if(newStr == NULL){
-    printf("malloc fail");
-    return NULL;
-  }
+  
   char *startp = newStr; //create a new pointer so we don't lose the start point
   while(len > 0){ //copy string
     *newStr = *inStr;
@@ -101,19 +98,13 @@ char **tokenize(char* str){
   char **pStr = (char **) malloc((count_tokens(str) + 1) * sizeof(char *)); //create a pointer of poiter 
   char **startPStr = pStr; //create the start point of pStr
   
-  while(*str!='\0'){
-    str = token_start(str); //skip any space char
-    if (str == 0) break; // there is no more tokens  
-    int countLen = 0; //reset the word to 0 len each time
-    while (non_space_char(*str)){ // count len of the word
-      countLen++;
-      str++;
-    }
-    
-    *pStr = copy_str(str - countLen, countLen); // copy the word into a new pointer, temp is use here
+  while(str = token_start(str)){ //skip any space char and set str to the next token
+    char *pTemp = token_terminator(str); //save the rest of string
+    int countLen = pTemp - str;// get the len for the word in str
+    *pStr = copy_str(str, countLen); // copy the word into a the pointer and move to the next
     pStr++;
 
-    str = token_terminator(str); //move to the next word to be added, 
+    str = pTemp; //move from the first token and start again 
   }
   
   *pStr = '\0'; //end the point of pointers with NULL
@@ -134,12 +125,13 @@ void print_tokens(char **tokens){
 /* Frees all tokens and the vector containing themx. */
 
 void free_tokens(char **token){
-  if(token != 0){
-    char **ptemp = token;
-    while(*ptemp != 0){
-      free(*ptemp);
-      ptemp++;
-    }
-    free(token);
+  if (*token == 0) {
+    return; // Avoid freeing a NULL pointer
   }
+  char **pTemp = token;
+  while(!*pTemp){
+    free(*pTemp);
+    pTemp++;
+  }
+  free(token);
 }
