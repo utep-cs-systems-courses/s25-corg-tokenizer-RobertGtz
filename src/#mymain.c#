@@ -22,6 +22,13 @@ int main(){
     fputs("\nYou can write now! \nType h to see history. \ntype ! follow by a number to see a expesific number. \nType e to exit\n", stdout);
 
     fflush(stdout);
+
+    //char c[100];
+
+    //memset(c, '\0', sizeof(c));
+
+    //char count = 0;
+
     char count_in = count;
 
 

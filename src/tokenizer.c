@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-
+#include "tokenizer.h"
 //return true if c is a space or and enter (' ' or '\n')
 int space_char(char c){
 
